@@ -1,0 +1,111 @@
+<android.support.v4.widget.DrawerLayout
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activities.CreateTravelActivity"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/create_travel_id">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include layout="@layout/navigation_action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/createFrom"
+                    android:text="From: "
+                    android:textSize="20sp"/>
+                <EditText
+                    android:id="@+id/createFrom"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/createTo"
+                    android:text="To: "
+                    android:textSize="20sp"/>
+                <EditText
+                    android:id="@+id/createTo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/createFree"
+                    android:text="Free Seats: "
+                    android:textSize="20sp"/>
+                <EditText
+                    android:id="@+id/createFree"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/createPrice"
+                    android:text="Price: "
+                    android:textSize="20sp"/>
+                <EditText
+                    android:id="@+id/createPrice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/createValute"
+                    android:text="Valute: "
+                    android:textSize="20sp"/>
+                <EditText
+                    android:id="@+id/creteValute"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <DatePicker
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TimePicker
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Create Travel"
+                    android:layout_marginBottom="20dp"/>
+
+            </LinearLayout>
+        </ScrollView>
+
+    </LinearLayout>
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/side_nav_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:menu="@menu/side_menu"
+        app:headerLayout="@layout/side_nav_header"
+        android:layout_gravity="start"/>
+
+</android.support.v4.widget.DrawerLayout>

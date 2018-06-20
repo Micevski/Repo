@@ -1,0 +1,59 @@
+package com.marko.travelers.Activities;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.marko.travelers.R;
+
+public class SignUpActivity extends AppCompatActivity {
+    ImageView imageView;
+    Button buttonImageAdd;
+    private static final int PICK_IMAGE = 100;
+    Uri imgUri;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sign_up);
+
+        setImageOnImageView();
+
+    }
+
+    private void setImageOnImageView() {
+        imageView = findViewById(R.id.sing_up_image);
+        buttonImageAdd = findViewById(R.id.sing_up_add_image);
+
+        buttonImageAdd.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                openGallery();
+            }
+        });
+    }
+    private void openGallery(){
+        Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+        startActivityForResult(gallery, PICK_IMAGE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == PICK_IMAGE){
+            imgUri = data.getData();
+            imageView.setImageURI(imgUri);
+        }
+        else {
+            Toast.makeText(SignUpActivity.this,"Try Again", Toast.LENGTH_LONG).show();
+        }
+    }
+}
