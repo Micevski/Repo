@@ -17,151 +17,58 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/sing_up_image"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:src="@mipmap/ic_launcher_round"/>
-                <Button
-                    android:id="@+id/sing_up_add_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@string/add_image"/>
-
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"
-                android:text="@string/name"
-                android:labelFor="@+id/sing_up_edit_name"/>
-            <EditText
-                android:id="@+id/sing_up_edit_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-            <TextView
-                android:id="@+id/sing_up_valid_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/sing_up_edit_name"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:text="@string/surname"
-                android:labelFor="@+id/sing_up_edit_surname"/>
-            <EditText
-                android:id="@+id/sing_up_edit_surname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-            <TextView
-                android:id="@+id/sing_up_valid_surname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/sing_up_edit_surname"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:text="@string/user_name"
-                android:labelFor="@+id/sing_up_edit_user_name"/>
-            <EditText
-                android:id="@+id/sing_up_edit_user_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-            <TextView
-                android:id="@+id/sing_up_valid_user_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/sing_up_edit_user_name"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="@string/prompt_email"
-                android:labelFor="@+id/sing_up_edit_mail"/>
+                android:labelFor="@+id/sign_up_edit_mail"/>
 
             <EditText
-                android:id="@+id/sing_up_edit_mail"
+                android:id="@+id/sign_up_edit_mail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword" />
-            <TextView
-                android:id="@+id/sing_up_valid_mail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/sing_up_edit_mail" />
+                android:inputType="text" />
+
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="@string/password"
-                android:labelFor="@+id/sing_up_edit_password"/>
+                android:labelFor="@+id/sign_up_edit_password"/>
             <EditText
-                android:id="@+id/sing_up_edit_password"
+                android:id="@+id/sign_up_edit_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword" />
-            <TextView
-                android:id="@+id/sing_up_valid_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/sing_up_edit_password"/>
+
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="@string/repeat_password"
-                android:labelFor="@+id/sing_up_edit_repeat_password"/>
+                android:labelFor="@+id/sign_up_edit_repeat_password"/>
             <EditText
-                android:id="@+id/sing_up_edit_repeat_password"
+                android:id="@+id/sign_up_edit_repeat_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword" />
-            <TextView
-                android:id="@+id/sing_up_valid_repeat_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/sing_up_edit_repeat_password" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:text="@string/phone"
-                android:labelFor="@+id/sing_up_edit_phone"/>
-            <EditText
-                android:id="@+id/sing_up_edit_phone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                tools:ignore="TextFields" />
-            <TextView
-                android:id="@+id/sing_up_valid_phone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/sing_up_edit_phone" />
 
             <Button
-                android:id="@+id/sing_up_btn"
+                android:id="@+id/sign_up_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/sign_up"/>
+
+            <Button
+                android:id="@+id/sign_up_log_in"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Alredy have an account?"/>
 
         </LinearLayout>
 

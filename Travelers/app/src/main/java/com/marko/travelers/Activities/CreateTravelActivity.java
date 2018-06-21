@@ -10,12 +10,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.marko.travelers.R;
 
 import java.util.Objects;
 
 public class CreateTravelActivity extends AppCompatActivity implements  NavigationView.OnNavigationItemSelectedListener{
 
+    private FirebaseAuth mAuth;
     private ActionBarDrawerToggle toggle;
     private DrawerLayout drawerLayout;
 
@@ -23,6 +25,8 @@ public class CreateTravelActivity extends AppCompatActivity implements  Navigati
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_travel);
+
+        mAuth = FirebaseAuth.getInstance();
 
         headerCall();
 
@@ -59,11 +63,12 @@ public class CreateTravelActivity extends AppCompatActivity implements  Navigati
         int id = item.getItemId();
 
         if(id == R.id.account){
-            Intent intent = new Intent(CreateTravelActivity.this, AccountActivity.class);
+            Intent intent = new Intent(CreateTravelActivity.this, SetUpActivity.class);
             startActivity(intent);
             finish();
         }
         else if(id == R.id.logout){
+            mAuth.signOut();
             Intent intent = new Intent(CreateTravelActivity.this, LogInActivity.class);
             startActivity(intent);
             finish();

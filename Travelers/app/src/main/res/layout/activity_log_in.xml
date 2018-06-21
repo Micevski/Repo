@@ -21,11 +21,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
-            android:text="@string/user_name"
-            android:labelFor="@id/username_login"/>
+            android:text="@string/prompt_email"
+            android:labelFor="@id/mail_login"/>
 
         <EditText
-            android:id="@+id/username_login"
+            android:id="@+id/mail_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text" />
@@ -45,7 +45,7 @@
             android:id="@+id/password_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="textPassword"
             tools:ignore="DuplicateIds,TextFields" />
         <TextView
             android:id="@+id/password_valid_login"

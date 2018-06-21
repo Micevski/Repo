@@ -66,7 +66,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         app:menu="@menu/side_menu"
-        app:headerLayout="@layout/side_nav_header"
         android:layout_gravity="start"/>
 
 </android.support.v4.widget.DrawerLayout>
