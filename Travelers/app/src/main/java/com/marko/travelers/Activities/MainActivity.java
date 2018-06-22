@@ -24,9 +24,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.marko.travelers.Adapters.SectionsPageAdapter;
 import com.marko.travelers.Fragments.FragmentAll;
 import com.marko.travelers.Fragments.FragmentDrive;
@@ -43,8 +48,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     private SectionsPageAdapter mSectionsPageAdapter;
     private ViewPager mViewPager;
-    private FirebaseAuth mAuth;
 
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore firebaseFirestore;
+
+    private String currentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+
 
         mViewPager = findViewById(R.id.container);
         mSectionsPageAdapter = new SectionsPageAdapter(getSupportFragmentManager());
@@ -77,6 +87,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(currentUser == null){
             startActivity(new Intent(MainActivity.this, LogInActivity.class));
             finish();
+        }
+        else {
+            currentUserId = mAuth.getCurrentUser().getUid();
+
+            firebaseFirestore.collection("Users").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener <DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                    if(task.isSuccessful()){
+                        if(!task.getResult().exists()){
+                            startActivity(new Intent(MainActivity.this, SetUpActivity.class));
+                            finish();
+                        }
+                    } else {
+                        Toast.makeText(MainActivity.this, "ERROR: "+ task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            });
         }
     }
 

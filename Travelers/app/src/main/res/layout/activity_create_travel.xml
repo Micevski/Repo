@@ -77,19 +77,22 @@
                     android:text="Valute: "
                     android:textSize="20sp"/>
                 <EditText
-                    android:id="@+id/creteValute"
+                    android:id="@+id/createValute"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
                 <DatePicker
+                    android:id="@+id/createDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
                 <TimePicker
+                    android:id="@+id/createTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
                 <Button
+                    android:id="@+id/createBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Create Travel"
