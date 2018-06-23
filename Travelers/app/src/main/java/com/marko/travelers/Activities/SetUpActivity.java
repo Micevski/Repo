@@ -1,26 +1,21 @@
 package com.marko.travelers.Activities;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -33,43 +28,44 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.marko.travelers.Manifest;
 import com.marko.travelers.R;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
-public class SetUpActivity extends AppCompatActivity implements  NavigationView.OnNavigationItemSelectedListener{
 
-    private static final String READ_STORAGE = android.Manifest.permission.READ_EXTERNAL_STORAGE;
-    private static final String WRITE_STORAGE = android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-    private static final int LOCATION_PERMISIONS_REQUEST_CODE = 1234;
-    private static final int PICK_IMAGE = 100;
-    ImageView imageView;
-    Button buttonImageAdd;
-    Uri imgUri;
+import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
-    private ActionBarDrawerToggle toggle;
-    private DrawerLayout drawerLayout;
 
+public class SetUpActivity extends AppCompatActivity {
+
+
+    private Uri mainImageURI = null;
+
+    private String user_id;
+
+    private boolean isChanged = false;
+
+    private CircleImageView imageView;
     private EditText edit_name;
     private EditText edit_surname;
     private EditText edit_username;
     private EditText edit_phone;
-    private Button set_up_btn;
+    private Button buttonImageAdd;
+    private Button setupBtn;
+    private ProgressDialog progressDialog;
 
-    private String user_id;
-
-    private FirebaseAuth mAuth;
     private StorageReference storageReference;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
 
-    private Boolean readWritePermissionsGranted = false;
-    private Boolean isChange = false;
-    private ProgressDialog progressDialog;
-
+    private Bitmap compressedImageFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,40 +73,68 @@ public class SetUpActivity extends AppCompatActivity implements  NavigationView.
         setContentView(R.layout.activity_set_up);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        storageReference = FirebaseStorage.getInstance().getReference();
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-
         user_id = firebaseAuth.getCurrentUser().getUid();
 
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        storageReference = FirebaseStorage.getInstance().getReference();
+
+        imageView = findViewById(R.id.sing_up_image);
+        buttonImageAdd = findViewById(R.id.sing_up_add_image);
         edit_name = findViewById(R.id.set_up_edit_name);
         edit_surname = findViewById(R.id.set_up_edit_surname);
         edit_username = findViewById(R.id.set_up_edit_user_name);
         edit_phone = findViewById(R.id.set_up_edit_phone);
-        set_up_btn = findViewById(R.id.set_up_btn);
+        setupBtn = findViewById(R.id.set_up_btn);
         progressDialog = new ProgressDialog(this);
 
 
 
-        headerCall();
+        setupBtn.setEnabled(false);
 
-        sideMenuCall();
+        firebaseFirestore.collection("Users").document(user_id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                if(task.isSuccessful()){
+
+                    if(task.getResult().exists()){
+
+                        String name = task.getResult().getString("name");
+                        String surname = task.getResult().getString("surname");
+                        String username = task.getResult().getString("username");
+                        String phone = task.getResult().getString("phone");
+                        String image = task.getResult().getString("image");
+
+                        mainImageURI = Uri.parse(image);
+
+                        edit_name.setText(name);
+                        edit_surname.setText(surname);
+                        edit_username.setText(username);
+                        edit_phone.setText(phone);
+
+                        RequestOptions placeholderRequest = new RequestOptions();
+                        placeholderRequest.placeholder(R.drawable.ic_launcher_foreground);
+
+                        Glide.with(SetUpActivity.this).setDefaultRequestOptions(placeholderRequest).load(image).into(imageView);
 
 
+                    }
 
-        NavigationView navigationView = findViewById(R.id.side_nav_menu);
-        navigationView.setNavigationItemSelectedListener(this);
-        setImageOnImageView();
-        addDataToDataBase();
-        fillItemsWithData();
+                } else {
 
-    }
+                    String error = task.getException().getMessage();
+                    Toast.makeText(SetUpActivity.this, "(FIRESTORE Retrieve Error) : " + error, Toast.LENGTH_LONG).show();
 
-    private void addDataToDataBase() {
+                }
 
 
-        progressDialog.setMessage("Adding data...");
-        set_up_btn.setOnClickListener(new View.OnClickListener() {
+                setupBtn.setEnabled(true);
+
+            }
+        });
+
+
+        setupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -119,241 +143,169 @@ public class SetUpActivity extends AppCompatActivity implements  NavigationView.
                 final String username = edit_username.getText().toString();
                 final String phone = edit_phone.getText().toString();
 
-                if(isChange) {
+                if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(surname) && !TextUtils.isEmpty(username)
+                        && !TextUtils.isEmpty(phone) && mainImageURI != null) {
 
-                    if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(surname) && !TextUtils.isEmpty(username) &&
-                            !TextUtils.isEmpty(phone) && imgUri != null) {
+
+
+                    if (isChanged) {
 
                         user_id = firebaseAuth.getCurrentUser().getUid();
 
-                        progressDialog.show();
+                        File newImageFile = new File(mainImageURI.getPath());
+                        try {
 
-                        StorageReference image_path = storageReference.child("profile_images").child(user_id + ".jpg");
+                            compressedImageFile = new Compressor(SetUpActivity.this)
+                                    .setMaxHeight(125)
+                                    .setMaxWidth(125)
+                                    .setQuality(50)
+                                    .compressToBitmap(newImageFile);
 
-                        image_path.putFile(imgUri).addOnCompleteListener(new OnCompleteListener <UploadTask.TaskSnapshot>() {
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte[] thumbData = baos.toByteArray();
+
+                        UploadTask image_path = storageReference.child("profile_images").child(user_id + ".jpg").putBytes(thumbData);
+
+                        image_path.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                             @Override
-                            public void onComplete(@NonNull Task <UploadTask.TaskSnapshot> task) {
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
                                 if (task.isSuccessful()) {
-
                                     storeFirestore(task, name, surname, username, phone);
 
                                 } else {
-                                    Toast.makeText(SetUpActivity.this, "ERROR: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                                    progressDialog.dismiss();
-                                }
 
+                                    String error = task.getException().getMessage();
+                                    Toast.makeText(SetUpActivity.this, "(IMAGE Error) : " + error, Toast.LENGTH_LONG).show();
+
+
+
+                                }
                             }
                         });
 
+                    } else {
+
+                        storeFirestore(null, name, surname, username, phone);
+
                     }
 
                 }
-                else {
-                    storeFirestore(null, name, surname, username, phone);
-                }
+
             }
+
         });
-    }
 
-
-    private void setImageOnImageView() {
-        imageView = findViewById(R.id.sing_up_image);
-        buttonImageAdd = findViewById(R.id.sing_up_add_image);
-
-        buttonImageAdd.setOnClickListener(new View.OnClickListener(){
-
+        buttonImageAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String[] permissions = {android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                    if(ContextCompat.checkSelfPermission(SetUpActivity.this, READ_STORAGE)
-                            == PackageManager.PERMISSION_GRANTED){
-                        if(ContextCompat.checkSelfPermission(SetUpActivity.this, WRITE_STORAGE)
-                                == PackageManager.PERMISSION_GRANTED){
-                            readWritePermissionsGranted = true;
-                        }else {
-                            ActivityCompat.requestPermissions(SetUpActivity.this, permissions, LOCATION_PERMISIONS_REQUEST_CODE);
-                        }
-                    }else {
-                        ActivityCompat.requestPermissions(SetUpActivity.this, permissions, LOCATION_PERMISIONS_REQUEST_CODE);
+
+                    if(ContextCompat.checkSelfPermission(SetUpActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+
+                        Toast.makeText(SetUpActivity.this, "Permission Denied", Toast.LENGTH_LONG).show();
+                        ActivityCompat.requestPermissions(SetUpActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+
+                    } else {
+
+                        BringImagePicker();
+
                     }
-                }
-                if(readWritePermissionsGranted == true){
-                    openGallery();
-                }
 
+                } else {
+
+                    BringImagePicker();
+
+                }
 
             }
+
         });
+
+
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        readWritePermissionsGranted = false;
+    private void storeFirestore(@NonNull Task<UploadTask.TaskSnapshot> task, String name , String surname, String username, String phone) {
 
-        switch (requestCode) {
-            case LOCATION_PERMISIONS_REQUEST_CODE: {
-                if (grantResults.length > 0) {
-                    for (int grantResult : grantResults) {
-                        if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                            readWritePermissionsGranted = false;
-                            return;
-                        }
-                        readWritePermissionsGranted = true;
+        Uri download_uri;
 
-                        }
+        if(task != null) {
 
-                }
-            }
-        }
-    }
-    private void openGallery(){
-        Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-        startActivityForResult(gallery, PICK_IMAGE);
-    }
+            download_uri = task.getResult().getUploadSessionUri();
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode, resultCode, data);
+        } else {
 
-        if(requestCode == PICK_IMAGE){
-            imgUri = data.getData();
-            imageView.setImageURI(imgUri);
-            isChange = true;
-        }
-        else {
-            Toast.makeText(SetUpActivity.this,"Try Again", Toast.LENGTH_LONG).show();
-        }
-    }
+            download_uri = mainImageURI;
 
-    private void storeFirestore(Task<UploadTask.TaskSnapshot> task, String name , String surname, String username, String phone){
-
-        Uri dowloadUri;
-
-        if(task != null){
-            dowloadUri = task.getResult().getUploadSessionUri();
-        }
-        else {
-            dowloadUri = imgUri;
         }
 
-
-        Map<String, String> userMap = new HashMap <>();
-            userMap.put("name", name);
+        Map<String, String> userMap = new HashMap<>();
+        userMap.put("name", name);
         userMap.put("surname", surname);
         userMap.put("username", username);
         userMap.put("phone", phone);
-        userMap.put("image", dowloadUri.toString());
+        userMap.put("image", download_uri.toString());
 
-        firebaseFirestore.collection("Users").document(user_id).set(userMap).addOnCompleteListener(new OnCompleteListener <Void>() {
+        firebaseFirestore.collection("Users").document(user_id).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onComplete(@NonNull Task <Void> task) {
+            public void onComplete(@NonNull Task<Void> task) {
+
                 if(task.isSuccessful()){
-                    startActivity(new Intent(SetUpActivity.this, MainActivity.class));
+
+                    Toast.makeText(SetUpActivity.this, "The user Settings are updated.", Toast.LENGTH_LONG).show();
+                    Intent mainIntent = new Intent(SetUpActivity.this, MainActivity.class);
+                    startActivity(mainIntent);
                     finish();
-                }else {
-                    Toast.makeText(SetUpActivity.this, "ERROR: "+ task.getException().getMessage(),Toast.LENGTH_LONG).show();
+
+                } else {
+
+                    String error = task.getException().getMessage();
+                    Toast.makeText(SetUpActivity.this, "(FIRESTORE Error) : " + error, Toast.LENGTH_LONG).show();
 
                 }
-                progressDialog.dismiss();
+
+
+
             }
         });
+
+
     }
 
-    private void fillItemsWithData() {
+    private void BringImagePicker() {
 
-        firebaseFirestore.collection("Users").document(user_id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+        CropImage.activity()
+                .setGuidelines(CropImageView.Guidelines.ON)
+                .setAspectRatio(1, 1)
+                .start(SetUpActivity.this);
 
-                if(task.isSuccessful()){
-
-                    if (task.getResult().exists()){
-
-                        String name = task.getResult().getString("name");
-                        String surname = task.getResult().getString("surname");
-                        String username = task.getResult().getString("username");
-                        String phone = task.getResult().getString("phone");
-                        String image = task.getResult().getString("image");
-
-                        edit_name.setText(name);
-                        edit_surname.setText(surname);
-                        edit_username.setText(username);
-                        edit_phone.setText(phone);
-
-                        imgUri = Uri.parse(image);
-
-                        RequestOptions requestOptions = new RequestOptions();
-                        requestOptions.placeholder(R.drawable.ic_launcher_foreground);
-                        Glide.with(SetUpActivity.this).setDefaultRequestOptions(requestOptions).load(image).into(imageView);
-
-                    }
-                    else {
-
-                        Toast.makeText(SetUpActivity.this, "There is some ERROR... Please try again later",Toast.LENGTH_LONG).show();
-                    }
-
-                }
-                else {
-                    Toast.makeText(SetUpActivity.this, "ERROR: "+ task.getException().getMessage(),Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-    }
-
-
-    private void headerCall() {
-        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.nav_toolbar);
-        setSupportActionBar(toolbar);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        return toggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+
+                mainImageURI = result.getUri();
+                imageView.setImageURI(mainImageURI);
+
+                isChanged = true;
+
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+
+                Exception error = result.getError();
+
+            }
+        }
 
     }
-
-    public void sideMenuCall(){
-        drawerLayout = findViewById(R.id.id_account);
-        toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-
-    }
-
-    public boolean onNavigationItemSelected(@NonNull MenuItem item){
-        int id = item.getItemId();
-
-        if(id == R.id.account){
-            Intent intent = new Intent(SetUpActivity.this, SetUpActivity.class);
-            startActivity(intent);
-            finish();
-        }
-        else if(id == R.id.logout){
-            mAuth.signOut();
-            Intent intent = new Intent(SetUpActivity.this, LogInActivity.class);
-            startActivity(intent);
-            finish();
-        }
-        else if(id == R.id.home){
-            Intent intent = new Intent(SetUpActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
-        else if(id == R.id.createTravel){
-            Intent intent = new Intent(SetUpActivity.this, CreateTravelActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-
-        return true;
-    }
-
 }

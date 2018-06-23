@@ -47,6 +47,9 @@
         <activity
             android:name=".Activities.TravelMyActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activities.SetUpActivity"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -55,7 +58,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_api_key" />
 
-        <activity android:name=".Activities.SetUpActivity"></activity>
+
     </application>
 
 </manifest>
