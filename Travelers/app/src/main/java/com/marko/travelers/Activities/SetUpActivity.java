@@ -201,32 +201,32 @@ public class SetUpActivity extends AppCompatActivity {
 
         });
 
-        buttonImageAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-
-                    if(ContextCompat.checkSelfPermission(SetUpActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-
-                        Toast.makeText(SetUpActivity.this, "Permission Denied", Toast.LENGTH_LONG).show();
-                        ActivityCompat.requestPermissions(SetUpActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-
-                    } else {
-
-                        BringImagePicker();
-
-                    }
-
-                } else {
-
-                    BringImagePicker();
-
-                }
-
-            }
-
-        });
+//        buttonImageAdd.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+//
+//                    if(ContextCompat.checkSelfPermission(SetUpActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+//
+//                        Toast.makeText(SetUpActivity.this, "Permission Denied", Toast.LENGTH_LONG).show();
+//                        ActivityCompat.requestPermissions(SetUpActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+//
+//                    } else {
+//
+//                        BringImagePicker();
+//
+//                    }
+//
+//                } else {
+//
+//                    BringImagePicker();
+//
+//                }
+//
+//            }
+//
+//        });
 
 
     }
@@ -278,34 +278,34 @@ public class SetUpActivity extends AppCompatActivity {
 
     }
 
-    private void BringImagePicker() {
+//    private void BringImagePicker() {
+//
+//        CropImage.activity()
+//                .setGuidelines(CropImageView.Guidelines.ON)
+//                .setAspectRatio(1, 1)
+//                .start(SetUpActivity.this);
+//
+//    }
 
-        CropImage.activity()
-                .setGuidelines(CropImageView.Guidelines.ON)
-                .setAspectRatio(1, 1)
-                .start(SetUpActivity.this);
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-
-                mainImageURI = result.getUri();
-                imageView.setImageURI(mainImageURI);
-
-                isChanged = true;
-
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-
-                Exception error = result.getError();
-
-            }
-        }
-
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+//            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+//            if (resultCode == RESULT_OK) {
+//
+//                mainImageURI = result.getUri();
+//                imageView.setImageURI(mainImageURI);
+//
+//                isChanged = true;
+//
+//            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+//
+//                Exception error = result.getError();
+//
+//            }
+//        }
+//
+//    }
 }
